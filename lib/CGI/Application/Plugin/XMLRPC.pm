@@ -189,5 +189,38 @@ sub xmlrpc_fault
 #	return "<h1>HTTP Error</h1>";
 #}
 
+
+sub fork_process
+{
+	my $self = shift;
+
+	# Block signals whilst we fork the new child process
+	$SIG{CHLD} = 'IGNORE';
+
+	my $pid;
+
+	# Fork the new child process
+	if (!defined($pid = fork)) {
+
+		die "Fork: $!";
+	}
+
+	# Am I the parent or the child?
+	if ($pid) {
+		# Ensure we return to caller
+
+		#warn "Child - return pid: $pid";
+
+		return $pid;
+	}
+
+	# I am the child - as I can't return from here - make sure sig(INT) kills me
+	$SIG{INT} = 'DEFAULT';
+
+	#warn "Parent lives";
+
+	return undef;
+}
+
 1;
 
